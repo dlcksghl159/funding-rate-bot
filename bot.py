@@ -46,7 +46,10 @@ async def get_binance_spot_symbols():
         return SPOT_SYMBOL_CACHE['binance']
 
     try:
-        async with aiohttp.ClientSession() as session:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get("https://api.binance.com/api/v3/exchangeInfo") as resp:
                 data = await resp.json()
                 symbols = set()
@@ -68,7 +71,10 @@ async def get_bybit_spot_symbols():
         logger.info(f"Bybit 현물 심볼 캐시 사용: {len(SPOT_SYMBOL_CACHE['bybit'])}개")
         return SPOT_SYMBOL_CACHE['bybit']
     try:
-        async with aiohttp.ClientSession() as session:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get("https://api.bybit.com/v5/market/instruments-info", params={"category": "spot"}) as resp:
                 data = await resp.json()
                 symbols = set()
@@ -226,7 +232,10 @@ async def get_binance_funding_rates(use_spot_filter=True):
             spot_symbols = set()
             logger.info("Binance 현물 필터 비활성 - 모든 선물 코인 포함")
             
-        async with aiohttp.ClientSession() as session:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        async with aiohttp.ClientSession(headers=headers) as session:
             # 펀딩비 데이터
             async with session.get("https://fapi.binance.com/fapi/v1/premiumIndex") as resp:
                 if resp.status == 200:
@@ -286,7 +295,10 @@ async def get_bybit_funding_rates(use_spot_filter=True):
             spot_symbols = set()
             logger.info("Bybit 현물 필터 비활성 - 모든 선물 코인 포함")
             
-        async with aiohttp.ClientSession() as session:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(
                 "https://api.bybit.com/v5/market/tickers",
                 params={"category": "linear"}
@@ -749,7 +761,7 @@ async def get_all_funding_rates(exchanges: List[str], use_spot_filter: bool = Tr
     if 'bybit' in exchanges:
         tasks.append(('bybit', get_bybit_funding_rates(use_spot_filter)))
     if 'binance' in exchanges:
-        tasks.append(('binance', binance_monitor.get_snapshot(use_spot_filter)))
+        tasks.append(('binance', get_binance_funding_rates(use_spot_filter)))
     if 'bitget' in exchanges:
         tasks.append(('bitget', get_bitget_funding_rates(use_spot_filter)))
     if 'okx' in exchanges:
